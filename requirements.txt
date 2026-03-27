@@ -1,0 +1,27 @@
+# ─── AI Teacher — Root Server Dependencies ──────────────────────────────────
+# Install with: pip install -r requirements.txt
+
+# Web server
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+
+# Environment
+python-dotenv==1.0.1
+
+# LiveKit token generation (server-side only, not the full agent SDK)
+livekit-api>=0.6.0
+
+# RAG stack (mirrors rag/requirements.txt so we can import directly)
+langchain==0.1.16
+langchain-community==0.0.38
+faiss-cpu==1.7.4
+sentence-transformers==2.6.1
+torch>=2.0.0
+pypdf==4.1.0
+
+# HTTP
+requests==2.31.0
+aiohttp>=3.9.0
+
+# Utilities
+numpy>=1.24.0

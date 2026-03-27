@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎒 Kiara's Classroom — AI Teacher</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & tokens ────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sky:    #e8f4fd;
+      --yellow: #ffe066;
+      --pink:   #ff9dc0;
+      --green:  #7ed957;
+      --purple: #b48aff;
+      --orange: #ffaa5c;
+      --blue:   #5bc8f5;
+      --red:    #ff6b6b;
+      --white:  #ffffff;
+      --dark:   #2d2d6e;
+      --card-r: 24px;
+      --shadow: 0 8px 32px rgba(45,45,110,.12);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, #c9e9ff 0%, #ffd6ec 50%, #d4f5c4 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Floating clouds bg ─────────────────────────────────────────── */
+    body::before {
+      content: '☁️';
+      font-size: 120px;
+      position: fixed;
+      top: -20px; left: -30px;
+      opacity: .25;
+      animation: drift 18s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+    body::after {
+      content: '☁️';
+      font-size: 80px;
+      position: fixed;
+      bottom: 40px; right: -20px;
+      opacity: .18;
+      animation: drift 22s ease-in-out infinite alternate-reverse;
+      pointer-events: none;
+    }
+    @keyframes drift { from { transform: translateX(0); } to { transform: translateX(40px); } }
+
+    /* ── Header ─────────────────────────────────────────────────────── */
+    header {
+      background: linear-gradient(90deg, #7b5ea7 0%, #5bc8f5 100%);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.18);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo-emoji { font-size: 2.4rem; animation: bounce 2s ease infinite; }
+    @keyframes bounce {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+    .logo-text {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.9rem;
+      color: #fff;
+      text-shadow: 2px 3px 0 rgba(0,0,0,.2);
+      letter-spacing: .5px;
+    }
+    .logo-text span { color: var(--yellow); }
+    .header-stars { margin-left: auto; font-size: 1.5rem; display: flex; gap: 6px; }
+
+    /* ── Main layout ─────────────────────────────────────────────────── */
+    .app {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 24px 20px 40px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto 1fr;
+      gap: 20px;
+    }
+    .section-full { grid-column: 1 / -1; }
+
+    /* ── Card base ───────────────────────────────────────────────────── */
+    .card {
+      background: rgba(255,255,255,.88);
+      backdrop-filter: blur(12px);
+      border-radius: var(--card-r);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      border: 3px solid transparent;
+    }
+    .card-header {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.25rem;
+      color: var(--dark);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── Class selector ─────────────────────────────────────────────── */
+    .class-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .class-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 88px;
+      height: 88px;
+      border-radius: 20px;
+      border: 3px solid transparent;
+      cursor: pointer;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1rem;
+      color: var(--dark);
+      transition: transform .2s, box-shadow .2s;
+      background: var(--white);
+      box-shadow: 0 4px 14px rgba(0,0,0,.10);
+    }
+    .class-btn:hover { transform: translateY(-4px) scale(1.07); box-shadow: 0 8px 22px rgba(0,0,0,.16); }
+    .class-btn.active { border-color: var(--dark); transform: translateY(-4px) scale(1.07); }
+    .class-btn span:first-child { font-size: 2rem; }
+
+    .class-btn[data-class="1"] { background: linear-gradient(135deg,#ffe066,#ffaa5c); }
+    .class-btn[data-class="2"] { background: linear-gradient(135deg,#7ed957,#5bc8f5); }
+    .class-btn[data-class="3"] { background: linear-gradient(135deg,#ff9dc0,#b48aff); }
+    .class-btn[data-class="4"] { background: linear-gradient(135deg,#5bc8f5,#7b5ea7); }
+    .class-btn[data-class="5"] { background: linear-gradient(135deg,#ff6b6b,#ffaa5c); }
+
+    /* ── Subject selector ────────────────────────────────────────────── */
+    .subjects-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .subj-btn {
+      padding: 10px 20px;
+      border-radius: 50px;
+      border: 3px solid transparent;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: .95rem;
+      transition: transform .18s, box-shadow .18s;
+      background: var(--white);
+      box-shadow: 0 3px 10px rgba(0,0,0,.10);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .subj-btn:hover { transform: scale(1.07); box-shadow: 0 6px 18px rgba(0,0,0,.15); }
+    .subj-btn.active { border-color: var(--dark); transform: scale(1.07); font-weight:800; }
+    .subj-btn[data-subj="English"]   { background: linear-gradient(135deg,#ffe066 0%,#ffcc00 100%); }
+    .subj-btn[data-subj="Maths"]     { background: linear-gradient(135deg,#7ed957 0%,#3db837 100%); color:#fff; }
+    .subj-btn[data-subj="Science"]   { background: linear-gradient(135deg,#5bc8f5 0%,#1da0db 100%); color:#fff; }
+    .subj-btn[data-subj="EVS"]       { background: linear-gradient(135deg,#b48aff 0%,#7b5ea7 100%); color:#fff; }
+    .subj-btn[data-subj="Hindi"]     { background: linear-gradient(135deg,#ff9dc0 0%,#ff4d8d 100%); color:#fff; }
+    .subj-btn[data-subj="Social"]    { background: linear-gradient(135deg,#ffaa5c 0%,#e07b00 100%); color:#fff; }
+    .subj-btn[data-subj="Computer"]  { background: linear-gradient(135deg,#ff6b6b 0%,#cc0000 100%); color:#fff; }
+
+    /* ── Kiara Panel (Voice) ─────────────────────────────────────────── */
+    .kiara-card {
+      border-color: var(--purple);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .kiara-avatar-wrap {
+      position: relative;
+      width: 160px;
+      height: 160px;
+    }
+    .kiara-avatar {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #b48aff 0%, #7b5ea7 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      box-shadow: 0 8px 30px rgba(180,138,255,.45);
+      transition: transform .3s;
+      position: relative;
+      z-index: 1;
+    }
+    .kiara-avatar.speaking {
+      animation: pulse-avatar 1s ease infinite;
+    }
+    @keyframes pulse-avatar {
+      0%,100% { transform: scale(1); box-shadow: 0 8px 30px rgba(180,138,255,.45); }
+      50%      { transform: scale(1.06); box-shadow: 0 12px 40px rgba(180,138,255,.75); }
+    }
+    .ring {
+      position: absolute;
+      inset: -12px;
+      border-radius: 50%;
+      border: 3px solid rgba(180,138,255,.4);
+      animation: ring-expand 2s ease infinite;
+    }
+    .ring:nth-child(2) { inset: -22px; animation-delay: .4s; }
+    .ring:nth-child(3) { inset: -32px; animation-delay: .8s; }
+    @keyframes ring-expand {
+      0% { opacity: .8; transform: scale(.9); }
+      100% { opacity: 0; transform: scale(1.1); }
+    }
+
+    .kiara-name {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.5rem;
+      color: var(--dark);
+    }
+    .kiara-status {
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: .85rem;
+      font-weight: 700;
+      letter-spacing: .4px;
+    }
+    .status-offline  { background: #f0f0f0; color: #999; }
+    .status-ready    { background: #d4f5c4; color: #2a7f00; }
+    .status-listening{ background: #ffe5b4; color: #b85c00; }
+    .status-speaking { background: #e8d5ff; color: #5b2d9e; }
+
+    .mic-btn {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #7b5ea7, #b48aff);
+      color: #fff;
+      box-shadow: 0 6px 20px rgba(123,94,167,.4);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .mic-btn:hover { transform: scale(1.1); box-shadow: 0 10px 28px rgba(123,94,167,.55); }
+    .mic-btn.active {
+      background: linear-gradient(135deg, #ff6b6b, #ff9dc0);
+      box-shadow: 0 6px 20px rgba(255,107,107,.45);
+      animation: mic-pulse 1.2s ease infinite;
+    }
+    @keyframes mic-pulse {
+      0%,100% { transform: scale(1); }
+      50%      { transform: scale(1.12); }
+    }
+    .mic-hint {
+      font-size: .82rem;
+      color: #888;
+      font-weight: 600;
+    }
+
+    /* Waveform bars */
+    .waveform {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      height: 40px;
+    }
+    .waveform div {
+      width: 6px;
+      border-radius: 3px;
+      background: var(--purple);
+      transform-origin: bottom;
+    }
+    .waveform.active div { animation: wave 0.8s ease infinite; }
+    .waveform div:nth-child(1) { height: 12px; animation-delay: 0s; }
+    .waveform div:nth-child(2) { height: 24px; animation-delay: .1s; }
+    .waveform div:nth-child(3) { height: 32px; animation-delay: .2s; }
+    .waveform div:nth-child(4) { height: 20px; animation-delay: .3s; }
+    .waveform div:nth-child(5) { height: 36px; animation-delay: .15s; }
+    .waveform div:nth-child(6) { height: 24px; animation-delay: .25s; }
+    .waveform div:nth-child(7) { height: 16px; animation-delay: .05s; }
+    @keyframes wave {
+      0%,100% { transform: scaleY(1); }
+      50%      { transform: scaleY(2.2); }
+    }
+
+    /* ── Chat Panel (RAG) ─────────────────────────────────────────────── */
+    .chat-card {
+      border-color: var(--blue);
+      display: flex;
+      flex-direction: column;
+      min-height: 520px;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding-right: 6px;
+      max-height: 360px;
+      padding-bottom: 4px;
+    }
+    .chat-messages::-webkit-scrollbar { width: 6px; }
+    .chat-messages::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 4px; }
+
+    /* Bubble */
+    .bubble {
+      max-width: 88%;
+      padding: 12px 18px;
+      border-radius: 22px;
+      font-size: 1rem;
+      line-height: 1.55;
+      word-break: break-word;
+    }
+    .bubble.student {
+      background: linear-gradient(135deg, #5bc8f5 0%, #1da0db 100%);
+      color: #fff;
+      align-self: flex-end;
+      border-bottom-right-radius: 6px;
+      font-weight: 600;
+    }
+    .bubble.kiara {
+      background: var(--white);
+      border: 2px solid var(--purple);
+      color: var(--dark);
+      align-self: flex-start;
+      border-bottom-left-radius: 6px;
+      position: relative;
+    }
+    .bubble.kiara::before {
+      content: '👩‍🏫';
+      position: absolute;
+      left: -32px;
+      top: 4px;
+      font-size: 1.3rem;
+    }
+    .bubble.system {
+      background: #f0f5ff;
+      color: #888;
+      font-size:.85rem;
+      align-self: center;
+      text-align: center;
+      border-radius: 14px;
+      padding: 8px 16px;
+    }
+    .typing-dots span {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--purple);
+      margin: 0 2px;
+      animation: dot-bounce 1.2s ease infinite;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: .2s; }
+    .typing-dots span:nth-child(3) { animation-delay: .4s; }
+    @keyframes dot-bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-8px)} }
+
+    /* Input row */
+    .chat-input-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .chat-input {
+      flex: 1;
+      padding: 13px 18px;
+      border: 2.5px solid #ddd;
+      border-radius: 50px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color .2s;
+      background: rgba(255,255,255,.9);
+    }
+    .chat-input:focus { border-color: var(--blue); }
+    .send-btn {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      font-size: 1.4rem;
+      background: linear-gradient(135deg, #5bc8f5, #1da0db);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(91,200,245,.4);
+      transition: transform .18s;
+    }
+    .send-btn:hover { transform: scale(1.12); }
+    .send-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+    /* No session warning */
+    .no-session-hint {
+      text-align: center;
+      padding: 28px;
+      color: #aaa;
+    }
+    .no-session-hint span { font-size: 2.5rem; display: block; margin-bottom: 8px; }
+
+    /* ── Upload card ──────────────────────────────────────────────────── */
+    .upload-card { border-color: var(--green); }
+    .upload-zone {
+      border: 3px dashed var(--green);
+      border-radius: 18px;
+      padding: 28px;
+      text-align: center;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+      background: rgba(126,217,87,.06);
+    }
+    .upload-zone:hover, .upload-zone.drag-over { background: rgba(126,217,87,.18); border-color: #3db837; }
+    .upload-zone span { font-size: 2.5rem; display: block; margin-bottom: 8px; }
+    .upload-zone p { color: #666; font-size: .95rem; font-weight: 600; }
+    .upload-zone small { color: #aaa; font-size: .78rem; }
+    #fileInput { display: none; }
+
+    .upload-progress {
+      margin-top: 14px;
+      display: none;
+    }
+    .progress-bar {
+      height: 10px;
+      border-radius: 6px;
+      background: #e0e0e0;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 6px;
+      background: linear-gradient(90deg, #7ed957, #3db837);
+      width: 0%;
+      transition: width .4s ease;
+    }
+    .upload-status {
+      margin-top: 8px;
+      font-size: .88rem;
+      font-weight: 700;
+      color: #3db837;
+      text-align: center;
+    }
+
+    /* Chapters list */
+    .chapters-list {
+      margin-top: 16px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .chapter-chip {
+      padding: 7px 16px;
+      border-radius: 50px;
+      border: 2px solid var(--green);
+      background: rgba(126,217,87,.12);
+      font-size: .83rem;
+      font-weight: 700;
+      color: #2a7f00;
+      cursor: pointer;
+      transition: background .18s, transform .18s;
+    }
+    .chapter-chip:hover { background: rgba(126,217,87,.3); transform: scale(1.05); }
+    .chapter-chip.loaded { background: var(--green); color: #fff; }
+
+    /* ── Stars / rewards ─────────────────────────────────────────────── */
+    #starCount {
+      font-family: 'Fredoka One', cursive;
+      color: var(--yellow);
+      font-size: 1.3rem;
+      text-shadow: 1px 1px 0 rgba(0,0,0,.2);
+    }
+
+    /* ── Responsive ──────────────────────────────────────────────────── */
+    @media (max-width: 800px) {
+      .app { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────────────── -->
+<header>
+  <div class="logo-emoji">🎒</div>
+  <div class="logo-text">Kiara's <span>Classroom</span></div>
+  <div class="header-stars">
+    <span>⭐</span>
+    <span id="starCount">0</span>
+  </div>
+</header>
+
+<!-- ── App ─────────────────────────────────────────────────────────── -->
+<div class="app">
+
+  <!-- Class Selector -->
+  <div class="card section-full">
+    <div class="card-header">🏫 Which class are you in?</div>
+    <div class="class-row" id="classRow">
+      <button class="class-btn active" data-class="1"><span>🌱</span>Class 1</button>
+      <button class="class-btn" data-class="2"><span>🌻</span>Class 2</button>
+      <button class="class-btn" data-class="3"><span>🌈</span>Class 3</button>
+      <button class="class-btn" data-class="4"><span>🚀</span>Class 4</button>
+      <button class="class-btn" data-class="5"><span>⭐</span>Class 5</button>
+    </div>
+  </div>
+
+  <!-- Subject Selector -->
+  <div class="card section-full">
+    <div class="card-header">📚 What would you like to learn?</div>
+    <div class="subjects-row" id="subjectRow">
+      <button class="subj-btn active" data-subj="English">📖 English</button>
+      <button class="subj-btn" data-subj="Maths">🔢 Maths</button>
+      <button class="subj-btn" data-subj="Science">🔬 Science</button>
+      <button class="subj-btn" data-subj="EVS">🌿 EVS</button>
+      <button class="subj-btn" data-subj="Hindi">🪔 Hindi</button>
+      <button class="subj-btn" data-subj="Social">🌍 Social</button>
+      <button class="subj-btn" data-subj="Computer">💻 Computer</button>
+    </div>
+  </div>
+
+  <!-- Kiara Voice Panel -->
+  <div class="card kiara-card">
+    <div class="card-header">🎙️ Talk to Kiara</div>
+
+    <div class="kiara-avatar-wrap">
+      <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+      <div class="kiara-avatar" id="kiaraAvatar">👩‍🏫</div>
+    </div>
+
+    <div class="kiara-name">Miss Kiara</div>
+    <div class="kiara-status status-offline" id="kiaraStatus">Offline</div>
+
+    <div class="waveform" id="waveform">
+      <div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+    </div>
+
+    <button class="mic-btn" id="micBtn" title="Start talking to Kiara" onclick="toggleVoice()">🎙️</button>
+    <div class="mic-hint" id="micHint">Click the mic to start talking!</div>
+
+    <!-- LiveKit transcript display -->
+    <div id="voiceTranscript" style="
+      width:100%;
+      min-height:56px;
+      background:rgba(180,138,255,.08);
+      border-radius:14px;
+      padding:10px 14px;
+      font-size:.88rem;
+      color:#555;
+      font-style:italic;
+      display:none;
+    "></div>
+  </div>
+
+  <!-- RAG Chat Panel -->
+  <div class="card chat-card">
+    <div class="card-header">💬 Ask Kiara a Question</div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="bubble system">
+        📚 Upload your textbook below, then ask me anything!
+      </div>
+    </div>
+
+    <div class="chat-input-row">
+      <input
+        class="chat-input"
+        id="chatInput"
+        type="text"
+        placeholder="Type your question here… 😊"
+        maxlength="300"
+        autocomplete="off"
+        onkeydown="if(event.key==='Enter') sendMessage()"
+      />
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Send">🚀</button>
+    </div>
+  </div>
+
+  <!-- Upload / Chapters Card -->
+  <div class="card upload-card section-full">
+    <div class="card-header">📂 Upload Your Textbook</div>
+
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()"
+         ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+      <span>📄</span>
+      <p>Click here or drag &amp; drop your PDF textbook</p>
+      <small>Supports PDF files up to 50 MB</small>
+    </div>
+    <input type="file" id="fileInput" accept=".pdf" onchange="handleFileSelect(event)" />
+
+    <div class="upload-progress" id="uploadProgress">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="upload-status" id="uploadStatus">Processing…</div>
+    </div>
+
+    <!-- Pre-loaded chapters -->
+    <div id="chaptersSection" style="margin-top:18px;">
+      <div style="font-weight:700;color:#2a7f00;font-size:.9rem;margin-bottom:8px;">📚 Quick Load — Available Chapters:</div>
+      <div class="chapters-list" id="chaptersList">
+        <span style="color:#aaa;font-size:.85rem;">Loading chapters…</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ───────────────────────────────────────────────────────────────────── -->
+<!--  LiveKit JS SDK (CDN)                                                 -->
+<!-- ───────────────────────────────────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+const state = {
+  selectedClass: 1,
+  selectedSubject: 'English',
+  sessionId: null,
+  stars: 0,
+  lkRoom: null,
+  voiceActive: false,
+  streaming: false,
+};
+
+// ── Class & Subject selectors ──────────────────────────────────────────────
+document.getElementById('classRow').addEventListener('click', e => {
+  const btn = e.target.closest('.class-btn');
+  if (!btn) return;
+  document.querySelectorAll('.class-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  state.selectedClass = parseInt(btn.dataset.class);
+  addSystemMessage(`🎒 Switched to Class ${state.selectedClass}!`);
+});
+
+document.getElementById('subjectRow').addEventListener('click', e => {
+  const btn = e.target.closest('.subj-btn');
+  if (!btn) return;
+  document.querySelectorAll('.subj-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  state.selectedSubject = btn.dataset.subj;
+  addSystemMessage(`📚 Great! Let's study ${state.selectedSubject} together!`);
+});
+
+// ── Chapters loader ────────────────────────────────────────────────────────
+async function loadChapters() {
+  try {
+    const res = await fetch('/api/chapters');
+    const data = await res.json();
+    const list = document.getElementById('chaptersList');
+    if (!data.chapters || data.chapters.length === 0) {
+      list.innerHTML = '<span style="color:#aaa;font-size:.85rem;">No chapters found. Upload a PDF above!</span>';
+      return;
+    }
+    list.innerHTML = '';
+    data.chapters.forEach(ch => {
+      const chip = document.createElement('button');
+      chip.className = 'chapter-chip';
+      chip.textContent = '📖 ' + ch.replace('.pdf','');
+      chip.title = 'Load ' + ch;
+      chip.onclick = () => loadChapter(ch, chip);
+      list.appendChild(chip);
+    });
+  } catch(e) {
+    document.getElementById('chaptersList').innerHTML =
+      '<span style="color:#f66;font-size:.85rem;">Could not load chapters.</span>';
+  }
+}
+
+async function loadChapter(name, chipEl) {
+  chipEl.textContent = '⏳ Loading…';
+  chipEl.disabled = true;
+  try {
+    const res = await fetch('/api/load-chapter', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({chapter: name})
+    });
+    const data = await res.json();
+    if (res.ok) {
+      state.sessionId = data.session_id;
+      chipEl.textContent = '✅ ' + name.replace('.pdf','');
+      chipEl.classList.add('loaded');
+      addSystemMessage(`📖 Great! "${name.replace('.pdf','')}" is ready! Ask me anything about it! 🎉`);
+      awardStar();
+    } else {
+      chipEl.textContent = '📖 ' + name.replace('.pdf','');
+      chipEl.disabled = false;
+      addSystemMessage('😅 Oops! Could not load that chapter. Try again!');
+    }
+  } catch(e) {
+    chipEl.textContent = '📖 ' + name.replace('.pdf','');
+    chipEl.disabled = false;
+  }
+}
+
+// ── File upload ─────────────────────────────────────────────────────────────
+function onDragOver(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('drag-over'); }
+function onDragLeave() { document.getElementById('uploadZone').classList.remove('drag-over'); }
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag-over');
+  const files = e.dataTransfer.files;
+  if (files.length > 0) uploadFile(files[0]);
+}
+function handleFileSelect(e) { if (e.target.files.length > 0) uploadFile(e.target.files[0]); }
+
+async function uploadFile(file) {
+  if (!file.name.endsWith('.pdf')) {
+    addSystemMessage('🙅 Please upload a PDF file!'); return;
+  }
+  const prog = document.getElementById('uploadProgress');
+  const fill = document.getElementById('progressFill');
+  const status = document.getElementById('uploadStatus');
+  prog.style.display = 'block';
+  fill.style.width = '30%';
+  status.textContent = '📚 Reading your book…';
+
+  const fd = new FormData();
+  fd.append('file', file);
+
+  try {
+    fill.style.width = '60%';
+    const res = await fetch('/api/upload', { method:'POST', body: fd });
+    const data = await res.json();
+    fill.style.width = '100%';
+    if (res.ok) {
+      state.sessionId = data.session_id;
+      status.textContent = `✅ ${data.pages_indexed} pages indexed! Ready to answer questions!`;
+      status.style.color = '#3db837';
+      addSystemMessage(`🎉 "${file.name}" is ready! I've read ${data.pages_indexed} pages. Ask me anything!`);
+      awardStar();
+    } else {
+      status.textContent = '❌ Upload failed: ' + (data.detail || 'Unknown error');
+      status.style.color = '#f66';
+    }
+  } catch(e) {
+    status.textContent = '❌ Upload failed. Please try again!';
+    status.style.color = '#f66';
+  }
+  setTimeout(() => { prog.style.display = 'none'; fill.style.width = '0%'; }, 4000);
+}
+
+// ── Chat ──────────────────────────────────────────────────────────────────
+const chatMessages = document.getElementById('chatMessages');
+const chatInput = document.getElementById('chatInput');
+const sendBtn = document.getElementById('sendBtn');
+
+function addBubble(text, type) {
+  const div = document.createElement('div');
+  div.className = `bubble ${type}`;
+  div.textContent = text;
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  return div;
+}
+function addSystemMessage(text) {
+  const div = document.createElement('div');
+  div.className = 'bubble system';
+  div.textContent = text;
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+function addTypingIndicator() {
+  const div = document.createElement('div');
+  div.className = 'bubble kiara';
+  div.id = 'typingIndicator';
+  div.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  return div;
+}
+
+async function sendMessage() {
+  const q = chatInput.value.trim();
+  if (!q || state.streaming) return;
+  if (!state.sessionId) {
+    addSystemMessage('📚 Please upload a textbook or load a chapter first!');
+    return;
+  }
+
+  chatInput.value = '';
+  addBubble(q, 'student');
+  sendBtn.disabled = true;
+  state.streaming = true;
+
+  const typingEl = addTypingIndicator();
+
+  try {
+    const res = await fetch('/api/rag-query', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        session_id: state.sessionId,
+        question: q,
+        grade: state.selectedClass
+      })
+    });
+
+    if (!res.ok) {
+      typingEl.remove();
+      addSystemMessage('😅 Hmm, something went wrong. Try again!');
+      return;
+    }
+
+    // Replace typing indicator with real bubble
+    typingEl.remove();
+    const replyBubble = addBubble('', 'kiara');
+    let fullText = '';
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = '';
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const payload = line.slice(6).trim();
+        if (payload === '[DONE]') break;
+        try {
+          const obj = JSON.parse(payload);
+          if (obj.text) {
+            fullText += obj.text;
+            replyBubble.textContent = fullText;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+          }
+        } catch {}
+      }
+    }
+    if (fullText) awardStar();
+
+  } catch(e) {
+    typingEl.remove();
+    addSystemMessage('😅 Oops! Could not get a reply. Check if the server is running.');
+  } finally {
+    state.streaming = false;
+    sendBtn.disabled = false;
+    chatInput.focus();
+  }
+}
+
+// ── LiveKit Voice ──────────────────────────────────────────────────────────
+const micBtn = document.getElementById('micBtn');
+const micHint = document.getElementById('micHint');
+const kiaraStatus = document.getElementById('kiaraStatus');
+const kiaraAvatar = document.getElementById('kiaraAvatar');
+const waveform = document.getElementById('waveform');
+const voiceTranscript = document.getElementById('voiceTranscript');
+
+function setKiaraStatus(s) {
+  kiaraStatus.className = 'kiara-status';
+  kiaraStatus.classList.add('status-' + s);
+  const labels = { offline:'Offline', ready:'Ready ✅', listening:'Listening… 👂', speaking:'Speaking… 💬' };
+  kiaraStatus.textContent = labels[s] || s;
+  if (s === 'speaking') { kiaraAvatar.classList.add('speaking'); waveform.classList.add('active'); }
+  else { kiaraAvatar.classList.remove('speaking'); waveform.classList.remove('active'); }
+}
+
+async function toggleVoice() {
+  if (state.voiceActive) {
+    await disconnectVoice();
+  } else {
+    await connectVoice();
+  }
+}
+
+async function connectVoice() {
+  micBtn.textContent = '⏳';
+  micHint.textContent = 'Connecting to Kiara…';
+
+  try {
+    // Get token from server
+    const res = await fetch('/api/livekit-token', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        room: 'kiara-classroom',
+        identity: 'student-' + Math.random().toString(36).slice(2,7),
+        name: 'Student',
+        session_id: state.sessionId
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Token error');
+
+    const { token, url } = data;
+
+    // Ensure LiveKit SDK loaded
+    if (typeof LivekitClient === 'undefined') {
+      throw new Error('LiveKit SDK not loaded. Check your internet connection.');
+    }
+
+    const room = new LivekitClient.Room({
+      adaptiveStream: true,
+      dynacast: true,
+    });
+    state.lkRoom = room;
+
+    // Events
+    room.on(LivekitClient.RoomEvent.ParticipantConnected, p => {
+      if (p.identity.startsWith('agent') || p.identity.includes('kiara') || p.identity.includes('assistant')) {
+        setKiaraStatus('ready');
+      }
+    });
+    room.on(LivekitClient.RoomEvent.ActiveSpeakersChanged, speakers => {
+      const kiaraSpeaking = speakers.some(s => !s.isLocal);
+      setKiaraStatus(kiaraSpeaking ? 'speaking' : (state.voiceActive ? 'listening' : 'ready'));
+    });
+    room.on(LivekitClient.RoomEvent.TrackSubscribed, (track, pub, participant) => {
+      if (track.kind === LivekitClient.Track.Kind.Audio && !participant.isLocal) {
+        const audioEl = track.attach();
+        document.body.appendChild(audioEl);
+        audioEl.style.display = 'none';
+      }
+    });
+    room.on(LivekitClient.RoomEvent.Disconnected, () => {
+      state.voiceActive = false;
+      setKiaraStatus('offline');
+      micBtn.textContent = '🎙️';
+      micBtn.classList.remove('active');
+      micHint.textContent = 'Click the mic to start talking!';
+      voiceTranscript.style.display = 'none';
+    });
+    room.on(LivekitClient.RoomEvent.DataReceived, (payload, participant) => {
+      try {
+        const msg = JSON.parse(new TextDecoder().decode(payload));
+        if (msg.type === 'transcript') {
+          voiceTranscript.style.display = 'block';
+          voiceTranscript.textContent = '🗣️ ' + msg.text;
+        }
+      } catch {}
+    });
+
+    await room.connect(url, token);
+
+    // Publish local microphone
+    await room.localParticipant.setMicrophoneEnabled(true);
+
+    state.voiceActive = true;
+    micBtn.textContent = '🔴';
+    micBtn.classList.add('active');
+    micHint.textContent = 'Talking! Say hi to Kiara 😊';
+    voiceTranscript.style.display = 'block';
+    voiceTranscript.textContent = '🎙️ Connected! Say "Hello Kiara!" to begin…';
+    setKiaraStatus('listening');
+
+  } catch(err) {
+    micBtn.textContent = '🎙️';
+    micHint.textContent = 'Could not connect — is the agent running?';
+    setKiaraStatus('offline');
+    console.error('LiveKit error:', err);
+    addSystemMessage('🎙️ Voice error: ' + err.message);
+  }
+}
+
+async function disconnectVoice() {
+  if (state.lkRoom) {
+    await state.lkRoom.disconnect();
+    state.lkRoom = null;
+  }
+  state.voiceActive = false;
+  micBtn.textContent = '🎙️';
+  micBtn.classList.remove('active');
+  micHint.textContent = 'Click the mic to start talking!';
+  voiceTranscript.style.display = 'none';
+  setKiaraStatus('offline');
+}
+
+// ── Stars reward ──────────────────────────────────────────────────────────
+function awardStar() {
+  state.stars++;
+  document.getElementById('starCount').textContent = state.stars;
+  // mini animation
+  const el = document.getElementById('starCount');
+  el.style.transform = 'scale(1.6)';
+  el.style.transition = 'transform .25s';
+  setTimeout(() => { el.style.transform = 'scale(1)'; }, 300);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+loadChapters();
+</script>
+</body>
+</html>

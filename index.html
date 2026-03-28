@@ -40,8 +40,32 @@
       text-transform: uppercase; 
       color: #fff;
       -webkit-text-stroke: 2px #1e1b4b;
-      text-shadow: 6px 6px 0px #1e1b4b, 0 0 20px rgba(255, 230, 109, 0.4);
+      text-shadow: 6px 6px 0px #1e1b4b, 0 0 25px rgba(255, 230, 109, 0.4);
       filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+      position: relative; overflow: hidden;
+    }
+
+    .error { color: #ef4444; }
+    .section-title { font-family: 'Luckiest Guy'; color: #fff; background: var(--secondary); padding: 12px 24px; border-radius: 50px; display: inline-block; box-shadow: 0 5px 0 #1e1b4b; margin-top: 40px; }
+    .mcq-option { 
+      padding: 15px; border: 3px solid #ddd; border-radius: 12px; cursor: pointer; transition: 0.2s; 
+      font-family: inherit; font-size: 1rem; text-align: left; background: #fff;
+    }
+    .mcq-option:hover { border-color: var(--primary); transform: translateX(5px); }
+    .mcq-option.selected { background: var(--primary); border-color: var(--primary); color: #fff; box-shadow: 0 5px 0 #1e1b4b; }
+    
+    .match-row { display: grid; grid-template-columns: 1fr 40px 1.5fr; gap: 10px; align-items: center; margin-bottom: 8px; }
+    .match-item { background: #f8fafc; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-weight: 700; }
+
+    .text-shine::after {
+      content: ''; position: absolute; top: -50%; left: -100%; width: 50%; height: 200%;
+      background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+      transform: rotate(25deg); animation: shine 3s infinite;
+    }
+
+    @keyframes shine { 
+        0% { left: -100%; } 
+        20%, 100% { left: 200%; } 
     }
 
     .text-gradient {
@@ -49,6 +73,7 @@
       background-clip: text;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      filter: drop-shadow(2px 2px 0px #1e1b4b);
     }
 
     /* ── Game Sidebar ─────────────────────────────────────────── */
@@ -80,19 +105,25 @@
 
     .nav-link {
       width: 76px; height: 76px; display: flex; align-items: center; justify-content: center; 
-      border-radius: 22px; margin-bottom: 24px; border: 4px solid #1e1b4b; background: #fff;
+      border-radius: 22px; margin-bottom: 24px; border: 4px solid #1e1b4b; background: #f8f9fa;
       transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; 
-      box-shadow: 0 8px 0 #1e1b4b;
+      box-shadow: 0 8px 0 #1e1b4b; position: relative;
     }
-    .nav-link:hover { transform: scale(1.15) rotate(5deg); background: var(--primary); }
+    .nav-link:hover { transform: scale(1.15) rotate(5deg) translateY(-5px); background: #fff; box-shadow: 0 12px 0 #1e1b4b; }
     .nav-link.active { 
-        background: var(--primary); 
+        background: var(--link-color, var(--primary)); 
         transform: translateY(8px); 
         box-shadow: 0 0px 0 #1e1b4b;
-        filter: drop-shadow(0 0 15px var(--primary));
+        filter: drop-shadow(0 0 20px var(--link-color, var(--primary)));
     }
-    .nav-link svg { width: 36px; height: 36px; stroke: #1e1b4b; stroke-width: 3px; transition: 0.3s; }
-    .nav-link.active svg { transform: scale(1.2); stroke: #fff; }
+    .nav-link svg { width: 36px; height: 36px; stroke: #1e1b4b; stroke-width: 3px; transition: 0.3s; z-index: 2; }
+    .nav-link.active svg { transform: scale(1.1); stroke: #fff; filter: drop-shadow(0 0 5px #fff); }
+    
+    /* Icon Halo */
+    .nav-link::before {
+      content: ''; position: absolute; inset: 4px; background: rgba(0,0,0,0.05); border-radius: 18px; transition: 0.3s;
+    }
+    .nav-link.active::before { background: rgba(255,255,255,0.3); }
 
     /* ── Game Components ───────────────────────────────────────── */
     .card {
@@ -109,7 +140,9 @@
       box-shadow: 0 8px 0 #1e1b4b; margin: 8px; font-size: 1.1rem;
       color: #1e1b4b;
     }
-    .pill:active { transform: translateY(6px); box-shadow: 0 2px 0 #1e1b4b; }
+    .pill:active, .nav-link:active, .grade-node:active, .map-level:active { 
+        animation: squish 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
     .pill.primary { background: var(--primary); }
     .pill.active { background: var(--secondary); color: #fff; }
 
@@ -151,10 +184,16 @@
     .map-level:hover { transform: scale(1.05) rotate(-2deg); }
     .map-level:active { transform: translateY(15px); box-shadow: 0 5px 0 #1e1b4b; }
     .map-level h2 { font-size: 2.22rem; margin-top: 20px; }
-    .map-level.classroom { background: #4ecdc4; }
-    .map-level.exam { background: #ff6b6b; }
-    .map-level.dashboard { background: #ffe66d; }
-    .map-level.reports { background: #a29bfe; }
+    .map-level.classroom { background: #4ecdc4; filter: drop-shadow(0 0 15px rgba(78, 205, 196, 0.3)); }
+    .map-level.exam { 
+        background: #ff6b6b; 
+        filter: drop-shadow(0 0 15px rgba(255, 107, 107, 0.3)); 
+        animation: wave 4s ease-in-out infinite, bossBorder 3s infinite; 
+    }
+    .map-level.reports h2 { animation: rainbow 5s linear infinite; }
+    .map-level.dashboard { background: #ffe66d; filter: drop-shadow(0 0 15px rgba(255, 230, 109, 0.3)); }
+    .map-level.reports { background: #a29bfe; filter: drop-shadow(0 0 15px rgba(162, 155, 254, 0.3)); }
+    .map-level:hover { transform: scale(1.08) rotate(-2deg); z-index: 10; cursor: pointer; }
 
     /* ── 🎬 ANIMATION ENGINE ───────────────────────────────────── */
     @keyframes floating {
@@ -166,13 +205,17 @@
       70% { transform: scale(1.05); opacity: 1; }
       100% { transform: scale(1); opacity: 1; }
     }
-    @keyframes wave {
-      0%, 100% { transform: rotate(-3deg); }
-      50% { transform: rotate(3deg); }
+    @keyframes rainbow {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
+    }
+    @keyframes bossBorder {
+      0%, 100% { border-color: #ff6b6b; box-shadow: 12px 12px 0 #1e1b4b, 0 0 20px rgba(255, 107, 107, 0.5); }
+      50% { border-color: #ffcc00; box-shadow: 12px 12px 0 #1e1b4b, 0 0 40px rgba(255, 204, 0, 0.8); }
     }
     @keyframes squish {
       0% { transform: scale(1); }
-      50% { transform: scale(0.92); }
+      40% { transform: scale(0.9) rotate(-1deg); }
       100% { transform: scale(1); }
     }
     @keyframes slideUp {
@@ -249,11 +292,20 @@
     .send-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #1e1b4b; }
 
     /* ── Stats Panel ───────────────────────────────────────────── */
-    .star-pill { background: #fff; border: 4px solid #1e1b4b; padding: 10px 24px; border-radius: 100px; font-family: 'Luckiest Guy'; font-size: 1.4rem; color: #ff9f00; box-shadow: 0 6px 0 rgba(0,0,0,0.1); }
+    .star-pill { 
+      background: linear-gradient(135deg, #fff 0%, #fff9e6 100%); 
+      border: 4px solid #1e1b4b; padding: 10px 24px; border-radius: 100px; 
+      font-family: 'Luckiest Guy'; font-size: 1.4rem; color: #ff9f00; 
+      box-shadow: 0 6px 0 #1e1b4b; display: flex; align-items: center; gap: 8px;
+    }
     
-    .mic-btn { width: 90px; height: 90px; background: #ff4d4d; border: 6px solid #1e1b4b; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 0 #990000; cursor: pointer; transition: 0.1s; }
-    .mic-btn:active { transform: translateY(6px); box-shadow: 0 4px 0 #990000; }
-    .mic-btn svg { width: 45px; height: 45px; fill: #fff; }
+    .mic-btn { 
+      width: 80px; height: 80px; background: #ff4d4d; border: 6px solid #1e1b4b; 
+      border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+      box-shadow: 0 8px 0 #990000; cursor: pointer; transition: 0.1s; 
+    }
+    .mic-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #990000; }
+    .mic-btn svg { width: 40px; height: 40px; fill: #fff; stroke: #1e1b4b; stroke-width: 2px; }
 
     .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
 
@@ -292,19 +344,19 @@
   <!-- ── Navigation (Game Side Panel) ── -->
   <nav class="sidebar" id="sidebar" style="display:none;">
     <div class="brand-icon">K</div>
-    <div class="nav-link active" id="nav-home" onclick="switchView('home')">
+    <div class="nav-link active" id="nav-home" onclick="switchView('home')" style="--link-color: #ffcc00;">
        <!-- Detailed Home Icon -->
        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     </div>
-    <div class="nav-link" id="nav-classroom" onclick="switchView('classroom')">
+    <div class="nav-link" id="nav-classroom" onclick="switchView('classroom')" style="--link-color: #4ecdc4;">
        <!-- Detailed school/cap Icon -->
        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
     </div>
-    <div class="nav-link" id="nav-exams" onclick="switchView('exams')">
+    <div class="nav-link" id="nav-exams" onclick="switchView('exams')" style="--link-color: #ff6b6b;">
        <!-- Detailed sword/arena Icon -->
        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6-6"/><path d="M16 16 20 20"/><path d="M19 21 21 19"/></svg>
     </div>
-    <div class="nav-link" id="nav-reports" onclick="switchView('reports')">
+    <div class="nav-link" id="nav-reports" onclick="switchView('reports')" style="--link-color: #a29bfe;">
        <!-- Detailed trophy icon -->
        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
     </div>
@@ -323,7 +375,7 @@
      <svg style="position:absolute; top:10%; left:5%; opacity:0.3; animation: floating 6s infinite;" width="120" height="60" viewBox="0 0 24 24" fill="#fff"><path d="M17.5 19c-3.037 0-5.5-2.463-5.5-5.5 0-2.31 1.423-4.288 3.444-5.111A5.495 5.495 0 0 1 18.5 7c3.037 0 5.5 2.463 5.5 5.5S21.537 18 18.5 18H17.5Z"/><path d="M6.5 19c-3.037 0-5.5-2.463-5.5-5.5C1 11.19 2.423 9.212 4.444 8.389A5.495 5.495 0 0 1 5.5 7C8.537 7 11 9.463 11 12.5S8.537 18 5.5 18H6.5Z"/></svg>
      <svg style="position:absolute; bottom:15%; right:8%; opacity:0.3; animation: floating 8s infinite reverse;" width="160" height="80" viewBox="0 0 24 24" fill="#fff"><path d="M17.5 19c-3.037 0-5.5-2.463-5.5-5.5 0-2.31 1.423-4.288 3.444-5.111A5.495 5.495 0 0 1 18.5 7c3.037 0 5.5 2.463 5.5 5.5S21.537 18 18.5 18H17.5Z"/><path d="M6.5 19c-3.037 0-5.5-2.463-5.5-5.5C1 11.19 2.423 9.212 4.444 8.389A5.495 5.495 0 0 1 5.5 7C8.537 7 11 9.463 11 12.5S8.537 18 5.5 18H6.5Z"/></svg>
      <div style="text-align: center; width: 100%; position:relative; z-index:2;">
-        <h1 class="game-logo text-gradient">Kiara World</h1>
+        <h1 class="game-logo text-gradient text-shine">Kiara World</h1>
         <p style="font-family:'Luckiest Guy'; color:#1e1b4b; font-size:1.5rem; margin-bottom:48px; opacity:0.8;">Choose Your Level to Start!</p>
         <div class="grade-grid" style="margin: 0 auto;">
            <div class="grade-node" onclick="setGrade(1)"><h3>1</h3><p>World 1</p></div>
@@ -339,7 +391,7 @@
   <div id="splash-module-choice" class="splash-overlay" style="display:none;">
      <svg style="position:absolute; top:20%; right:10%; opacity:0.2; animation: floating 7s infinite;" width="100" height="50" viewBox="0 0 24 24" fill="#fff"><path d="M17.5 19c-3.037 0-5.5-2.463-5.5-5.5 0-2.31 1.423-4.288 3.444-5.111A5.495 5.495 0 0 1 18.5 7c3.037 0 5.5 2.463 5.5 5.5S21.537 18 18.5 18H17.5Z"/><path d="M6.5 19c-3.037 0-5.5-2.463-5.5-5.5C1 11.19 2.423 9.212 4.444 8.389A5.495 5.495 0 0 1 5.5 7C8.537 7 11 9.463 11 12.5S8.537 18 5.5 18H6.5Z"/></svg>
      <div style="text-align: center; width: 100%; position:relative; z-index:2;">
-        <h1 class="game-logo text-gradient" style="font-size:4rem; margin-bottom:48px;">Adventure Map</h1>
+        <h1 class="game-logo text-gradient text-shine" style="font-size:4rem; margin-bottom:48px;">Adventure Map</h1>
         <div class="adventure-grid" style="margin: 0 auto;">
            <div class="map-level dashboard" onclick="enterModule('home')">
               <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
@@ -384,7 +436,7 @@
     <div id="view-home" class="view active">
       <div class="section-header">
          <p>STREAK: 5 DAYS</p>
-         <h1>Welcome, Hero!</h1>
+         <h1>Welcome, <span class="text-shine">Hero!</span></h1>
       </div>
 
       <div class="grid">
@@ -484,82 +536,79 @@
     <!-- ── View: EXAMS (Boss Arena) ── -->
     <div id="view-exams" class="view">
        <div class="section-header">
-          <p>FINAL CHALLENGE</p>
+          <p>STRICT RAG CHALLENGE</p>
           <h1>Boss Arena</h1>
        </div>
 
-       <!-- Stage 1: Identity -->
+       <!-- Stage 1 -->
        <div id="exam-setup-identity" class="card" style="max-width:600px; margin:0 auto; text-align:center;">
           <h2 style="margin-bottom:32px;">Register Your Hero</h2>
-          <div class="input-wrapper">
-             <input type="text" id="examName" placeholder="Enter Hero Name...">
-          </div>
+          <div class="input-wrapper"><input type="text" id="examName" placeholder="Hero Name..."></div>
           <button class="pill primary" style="width:100%; margin-top:32px;" onclick="showExamSubjects()">Next Level →</button>
        </div>
 
-       <!-- Stage 2: Subject Selection -->
+       <!-- Stage 2 -->
        <div id="exam-setup-subjects" class="grid" style="display:none;">
-          <div class="card" onclick="selectExamSubject('Maths')" style="background:#ffcc00;"><h3>Maths</h3></div>
-          <div class="card" onclick="selectExamSubject('Science')" style="background:#00ff88;"><h3>Science</h3></div>
-          <div class="card" onclick="selectExamSubject('English')" style="background:#4f46e5; color:#fff;"><h3>English</h3></div>
-          <div class="card" onclick="selectExamSubject('Social')" style="background:#ff7e5f;"><h3>Social</h3></div>
+          <div class="card" style="background:#ffcc00;" onclick="selectExamSubject('Maths')"><h3>Maths</h3></div>
+          <div class="card" style="background:#00ff88;" onclick="selectExamSubject('Science')"><h3>Science</h3></div>
+          <div class="card" style="background:#4f46e5; color:#fff;" onclick="selectExamSubject('English')"><h3>English</h3></div>
+          <div class="card" style="background:#ff7e5f;" onclick="selectExamSubject('Social')"><h3>Social</h3></div>
        </div>
 
-       <!-- State 3: Material -->
+       <!-- Stage 3 -->
        <div id="exam-setup-material" style="display:none;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
-             <h2 id="exam-subject-title">Arena Settings</h2>
-             <button class="pill" onclick="showExamSubjects()">← Change Arena</button>
-          </div>
+          <h2 id="exam-subject-title" style="margin-bottom:20px;">Arena Settings</h2>
           <div id="exam-material-list" class="grid"></div>
        </div>
 
-       <!-- State 4: Format -->
+       <!-- Stage 4: Difficulty -->
        <div id="exam-setup-format" style="display:none; text-align:center;">
           <h2 style="margin-bottom:48px;">Choose Your Difficulty</h2>
           <div class="grid" style="grid-template-columns: 1fr 1fr; max-width:900px; margin:0 auto;">
-             <div class="card" onclick="selectExamFormat(25)" style="background:#fff;">
-                <h3 style="font-size:2rem; color:#1e1b4b;">Standard</h3>
-                <h1 style="font-size:5rem; color:var(--primary);">25</h1>
-                <p style="font-weight:700;">15 Questions</p>
-                <button class="pill primary" style="width:100%; margin-top:20px;">Begin Quest</button>
-             </div>
-             <div class="card" onclick="selectExamFormat(50)" style="background:#ff4d4d; color: #fff;">
-                <h3 style="font-size:2rem; color:#fff;">Mastery</h3>
-                <h1 style="font-size:5rem; color:#fff;">50</h1>
-                <p style="font-weight:700; color:#fff;">32 Questions</p>
-                <button class="pill" style="width:100%; margin-top:20px; background:#fff; color:#ff4d4d;">Face Boss</button>
-             </div>
+             <div class="card" onclick="selectExamFormat(25)"><h3>Standard (25 Marks)</h3></div>
+             <div class="card" onclick="selectExamFormat(50)"><h3>Mastery (50 Marks)</h3></div>
           </div>
        </div>
 
-       <!-- State 5: Loading -->
+       <!-- Stage 4: Loading -->
        <div id="exam-loading" class="card" style="display:none; text-align:center; padding:80px;">
-          <h2 style="animation: bounce 1s infinite;">Crafting Arena...</h2>
-          <p style="font-family:'Luckiest Guy'; margin-top:20px;">The AI Boss is preparing your scrolls!</p>
+          <h2 style="animation: bounce 1s infinite;">Summoning Boss...</h2>
+          <p>Verifying RAG Grounding Rules...</p>
        </div>
 
        <!-- Exam Paper -->
        <div id="exam-paper" style="display:none;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:60px;">
-             <div id="paper-meta"></div>
-             <div class="star-pill" style="font-size:2rem; display:flex; align-items:center; gap:12px;">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                <span id="examTimer">25:00</span>
-             </div>
-          </div>
-          <div id="question-list" style="display:flex; flex-direction:column; gap:48px;"></div>
-          <button class="pill primary" style="width:400px; margin:80px auto 0; display:block;" onclick="submitExam()">FINISH CHALLENGE</button>
+          <div id="paper-meta" style="margin-bottom:40px;"></div>
+          <div id="question-list" style="display:flex; flex-direction:column; gap:32px;"></div>
+          <button class="pill primary" style="width:300px; margin:60px auto; display:block;" onclick="submitExam()">FINISH CHALLENGE</button>
        </div>
 
        <!-- Result -->
        <div id="exam-result" class="card" style="display:none; max-width:900px; margin:0 auto; padding:60px; text-align:center;">
-          <h1 id="resultScore" style="font-size:6rem;">0 / 0</h1>
-          <h2 id="resultRank">RANK: EVALUATING...</h2>
-          <p id="resultFeedback" style="margin:40px 0; font-weight:700; font-size:1.2rem;"></p>
-          <button class="pill primary" onclick="location.reload()">Back to World Map</button>
+          <h1 id="resultScore" style="font-size:6rem; margin-bottom:10px;">0 / 0</h1>
+          <h2 id="resultRank" style="color:var(--secondary); font-family:'Luckiest Guy'; font-size:2rem;">CHALLENGER</h2>
+          
+          <!-- Detailed Report -->
+          <div id="resultDetails" class="grid" style="grid-template-columns: 1fr 1fr; text-align:left; margin-top:60px; gap:40px;">
+             <div class="card" id="result-concepts">
+                <h3 style="margin-bottom:20px;">🛡️ Concept Mastery</h3>
+                <!-- Injected via JS -->
+             </div>
+             <div class="card" id="result-meta">
+                <h3 style="margin-bottom:20px;">🧩 Difficulty Analysis</h3>
+                <!-- Injected via JS -->
+             </div>
+          </div>
+
+          <div class="card" id="result-feedback" style="margin-top:40px; text-align:left; border-left: 8px solid var(--accent);">
+             <h3 style="margin-bottom:20px;">📜 The Judge's Guidance</h3>
+             <div id="feedback-content"></div>
+          </div>
+
+          <button class="pill primary" style="margin-top:60px;" onclick="location.reload()">Back to World Map</button>
        </div>
     </div>
+
 
     <!-- ── View: REPORTS (Trophy Room) ── -->
     <div id="view-reports" class="view">
@@ -826,44 +875,171 @@
     function renderExamPaper() {
         const list = document.getElementById('question-list');
         list.innerHTML = '';
-        currentExamQuestions.forEach((q, idx) => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.style.animationDelay = `${idx * 0.1}s`; // Staggered entry
-            let content = `<h3>Q${idx+1} (${q.marks} Marks)</h3><p style="font-size:1.2rem; margin:20px 0;">${q.question}</p>`;
-            if(q.type === 'descriptive') {
-                content += `<textarea data-qid="${q.id}" class="exam-ans" style="width:100%; height:120px; border-radius:15px; padding:15px;"></textarea>`;
-            } else {
-                content += `<input type="text" data-qid="${q.id}" class="exam-ans" style="width:100%; padding:15px; border-radius:15px; border:3px solid #1e1b4b;" placeholder="Enter answer...">`;
-            }
-            card.innerHTML = content;
-            list.appendChild(card);
+        
+        // ── SECTION A: OBJECTIVE ──
+        if (currentExamQuestions.sectionA) {
+            const secA = currentExamQuestions.sectionA;
+            const h = document.createElement('div');
+            h.innerHTML = `<h2 class="section-title">SECTION A: Objective (The Scout)</h2>`;
+            list.appendChild(h);
+
+            // MCQs
+            if (secA.mcq) secA.mcq.forEach((q, i) => list.appendChild(createMCQCard(q, `mcq_${i}`, i+1)));
+            // FIBs
+            if (secA.fib) secA.fib.forEach((q, i) => list.appendChild(createFIBCard(q, `fib_${i}`, i+1)));
+            // Match
+            if (secA.match) list.appendChild(createMatchCard(secA.match, `match_0`, 1));
+        }
+
+        // ── SECTION B: SHORT (The Guard) ──
+        if (currentExamQuestions.sectionB) {
+            const h = document.createElement('div');
+            h.innerHTML = `<h2 class="section-title">SECTION B: Short Answer (The Knight)</h2>`;
+            list.appendChild(h);
+            currentExamQuestions.sectionB.forEach((q, i) => list.appendChild(createStandardCard(q, `secB_${i}`, i+1, 'short')));
+        }
+
+        // ── SECTION C: LONG (The Boss) ──
+        if (currentExamQuestions.sectionC) {
+            const h = document.createElement('div');
+            h.innerHTML = `<h2 class="section-title">SECTION C: Long Answer (The Dragon)</h2>`;
+            list.appendChild(h);
+            currentExamQuestions.sectionC.forEach((q, i) => list.appendChild(createStandardCard(q, `secC_${i}`, i+1, 'long')));
+        }
+    }
+
+    function createMCQCard(q, qid, num) {
+        const div = document.createElement('div');
+        div.className = 'card';
+        const qText = q.question || q.text || q.q || "Missing Question Text";
+        div.innerHTML = `<h3>Q${num}</h3><p style="font-size:1.1rem; margin-bottom:15px;">${qText}</p>
+                        <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px;" id="opts_${qid}"></div>`;
+        const opts = div.querySelector(`#opts_${qid}`);
+        (q.options || q.choices || []).forEach(opt => {
+            const b = document.createElement('button');
+            b.className = 'mcq-option';
+            b.innerText = opt;
+            b.onclick = () => {
+                opts.querySelectorAll('.mcq-option').forEach(x => x.classList.remove('selected'));
+                b.classList.add('selected');
+                b.dataset.val = opt;
+            };
+            opts.appendChild(b);
         });
+        // Hidden input for submission scraper to find
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.className = 'exam-ans-mcq';
+        hidden.dataset.qid = qid;
+        div.appendChild(hidden);
+        return div;
+    }
+
+    function createFIBCard(q, qid, num) {
+        const div = document.createElement('div');
+        div.className = 'card';
+        const qText = q.question || q.text || q.q || "The ___ is...";
+        div.innerHTML = `<h3>Q${num}</h3><p style="font-size:1.1rem; margin-bottom:15px;">${qText.replace('___', '<input type="text" class="exam-ans" data-qid="'+qid+'" style="width:120px; padding:5px; border-bottom:3px solid #1e1b4b; border-radius:0; border-top:0; border-left:0; border-right:0;">')}</p>`;
+        return div;
+    }
+
+    function createMatchCard(q, qid, num) {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `<h3>Match Mission</h3><p>${q.question || 'Match the following pairs correctly:'}</p><div id="match_${qid}" style="margin-top:15px;"></div>`;
+        const container = div.querySelector(`#match_${qid}`);
+        Object.keys(q.pairs || {}).forEach(k => {
+            const row = document.createElement('div');
+            row.className = 'match-row';
+            row.innerHTML = `<div class="match-item">${k}</div> <span>➔</span> <input type="text" class="exam-ans match-input" data-pair="${k}" data-qid="${qid}" style="width:100%; border-radius:8px; border:2px solid #ddd; padding:8px;">`;
+            container.appendChild(row);
+        });
+        return div;
+    }
+
+    function createStandardCard(q, qid, num, mode) {
+        const div = document.createElement('div');
+        div.className = 'card';
+        const qText = q.question || q.text || q.q || "Answer the following question:";
+        const area = mode === 'long' ? `<textarea data-qid="${qid}" class="exam-ans" style="width:100%; height:120px; border-radius:12px; padding:15px;"></textarea>` : `<input type="text" data-qid="${qid}" class="exam-ans" style="width:100%; padding:15px; border-radius:12px;">`;
+        div.innerHTML = `<h3>Q${num}</h3><p style="font-size:1.1rem; margin-bottom:15px;">${qText}</p>${area}`;
+        return div;
     }
 
     async function submitExam() {
-        const answers = {};
-        document.querySelectorAll('.exam-ans').forEach(el => answers[el.dataset.qid] = el.value);
+        const btn = document.querySelector('.exam-paper .pill[onclick="submitExam()"]');
+        if (btn) btn.innerText = "SUBMITTING...";
+        
+        try {
+            const answers = {};
+            // Regular inputs
+            document.querySelectorAll('.exam-ans').forEach(el => answers[el.dataset.qid] = el.value);
+            // MCQ buttons
+            document.querySelectorAll('.mcq-option.selected').forEach(btn => {
+                const hidden = btn.closest('.card').querySelector('.exam-ans-mcq');
+                if(hidden) answers[hidden.dataset.qid] = btn.dataset.val;
+            });
+            // Match inputs (bundled as a string or list)
+            document.querySelectorAll('.match-input').forEach(mi => {
+                if(!answers[mi.dataset.qid]) answers[mi.dataset.qid] = {};
+                answers[mi.dataset.qid][mi.dataset.pair] = mi.value;
+            });
 
-        const res = await fetch('/api/exam/submit', {
-            method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({
-                student_name: document.getElementById('examName').value,
-                subject: state.examSubject, chapter: state.examChapter,
-                questions: currentExamQuestions, answers: answers, exam_id: currentExamId
-            })
-        });
-        const result = await res.json();
-        showExamResult(result);
+            const res = await fetch('/api/exam/submit', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({
+                    student_name: document.getElementById('examName').value,
+                    subject: state.examSubject, chapter: state.examChapter,
+                    questions_data: currentExamQuestions, answers: answers, exam_id: currentExamId
+                })
+            });
+            const result = await res.json();
+            showExamResult(result);
+        } catch(e) {
+            console.error("Submission failed:", e);
+            alert("Submission error! Check your connection.");
+        } finally {
+            if (btn) btn.innerText = "FINISH CHALLENGE";
+        }
     }
 
     function showExamResult(res) {
         document.getElementById('exam-paper').style.display = 'none';
         document.getElementById('exam-result').style.display = 'block';
-        document.getElementById('resultScore').innerText = `${res.score} / ${res.total_marks}`;
-        document.getElementById('resultFeedback').innerText = res.feedback;
-        awardStar(res.score > res.total_marks/2 ? 10 : 2);
+        
+        // Basic Stats
+        document.getElementById('resultScore').innerText = `${res.final_score} / 25`;
+        const rank = res.accuracy >= 90 ? "ROYAL ELITE" : (res.accuracy >= 70 ? "WARRIOR" : "SQUIRE");
+        document.getElementById('resultRank').innerText = `RANK: ${rank}`;
+        
+        // Concept Mastery
+        const concepts = document.getElementById('result-concepts');
+        concepts.innerHTML = `<h3>🛡️ Concept Mastery</h3>` + 
+            Object.entries(res.concept_mastery || {}).map(([c, s]) => 
+                `<div style="margin-bottom:12px;"><strong>${c}</strong>: ${s}%</div>`
+            ).join('');
+
+        // Difficulty Metadata
+        const meta = document.getElementById('result-meta');
+        meta.innerHTML = `<h3>🧩 Resilience</h3>` + 
+            Object.entries(res.difficulty_analysis || {}).map(([d, s]) => 
+                `<div style="margin-bottom:12px;"><strong>${d.toUpperCase()}</strong> accuracy: ${s}%</div>`
+            ).join('');
+
+        // Deep Feedback
+        const fb = document.getElementById('feedback-content');
+        const suggest = (res.feedback?.suggestions || []).join('<br><li>');
+        fb.innerHTML = `
+            <p style="font-size:1.1rem; margin-bottom:15px;"><strong>Strong Areas:</strong> ${ (res.feedback?.strong_areas || []).join(", ") }</p>
+            <p style="font-size:1.1rem; margin-bottom:15px;"><strong>Weak Areas:</strong> ${ (res.feedback?.weak_areas || []).join(", ") }</p>
+            <div style="background:#fff7ed; padding:15px; border-radius:10px;">
+                <strong>Suggestion:</strong><br>
+                <span>${suggest || "Keep studying, Hero!"}</span>
+            </div>
+        `;
+
+        awardStar(res.final_score >= 15 ? 20 : 5);
     }
 
     // --- Utilities ---

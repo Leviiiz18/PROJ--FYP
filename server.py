@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 import requests
 
 # ─── Load env ───────────────────────────────────────────────────────────────
-load_dotenv()
+load_dotenv(Path(__file__).parent / ".env")
 
 # Also load Model/.env and rag/.env for their keys
 load_dotenv(dotenv_path=Path(__file__).parent / "Model" / ".env", override=False)
@@ -30,6 +30,7 @@ from ingestion.pdf_loader import load_pdfs
 from embeddings.embedder import get_embedding_model
 from vector_store.faiss_manager import create_faiss_index
 from retriever.retrieval import get_retriever
+
 
 # ─── Mock Test Integration ───────────────────────────────────────────────────
 from mock_test.routes import router as exam_router
@@ -183,8 +184,10 @@ async def list_chapters(grade: int = 3, subject: str = "Maths"):
     
     if not target_dir.exists():
         return {"chapters": []}
-    files = [f.name for f in target_dir.glob("*.pdf")]
-    return {"chapters": files}
+    
+    # Recursive glob to find nested NCERT PDFs (e.g. in 'cemm1dd' subfolder)
+    files = [f.name for f in target_dir.rglob("*.pdf")]
+    return {"chapters": sorted(list(set(files)))}
 
 
 class TokenRequest(BaseModel):
@@ -280,6 +283,15 @@ async def load_chapter(body: dict):
     sub_map = {"science": "evs", "math": "maths", "english": "english", "hindi": "hindi", "mathematics": "maths"}
     folder_sub = sub_map.get(subject.lower(), subject.lower())
     chapter_path = CHAPTERS_DIR / f"class {grade} {folder_sub}" / chapter_name
+    
+    # If not found directly, search recursively for the filename
+    if not chapter_path.exists():
+        search_dir = CHAPTERS_DIR / f"class {grade} {folder_sub}"
+        if search_dir.exists():
+            for p in search_dir.rglob("*.pdf"):
+                if p.name == chapter_name:
+                    chapter_path = p
+                    break
     
     if not chapter_path.exists():
         raise HTTPException(status_code=404, detail=f"Chapter '{chapter_name}' not found.")

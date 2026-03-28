@@ -1,5 +1,6 @@
 import sqlite3
 import json
+import time
 from pathlib import Path
 from datetime import datetime
 
@@ -24,6 +25,16 @@ def init_db():
             timestamp TEXT NOT NULL
         )
     """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS textbook_cache (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            subject TEXT NOT NULL,
+            chapter TEXT NOT NULL,
+            grade INTEGER NOT NULL,
+            content TEXT NOT NULL,
+            timestamp TEXT NOT NULL
+        )
+    """)
     conn.commit()
     conn.close()
 
@@ -38,7 +49,7 @@ def save_attempt(name, subject, chapter, score, total, accuracy=0, difficulty_ct
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         name, subject, chapter, score, total,
-        accuracy, json.dumps(difficulty_ctx), json.dumps(concept_ctx), avg_time, feedback,
+        accuracy, json.dumps(difficulty_ctx or {}), json.dumps(concept_ctx or {}), avg_time, feedback,
         datetime.now().isoformat()
     ))
     conn.commit()
@@ -72,5 +83,39 @@ def get_history(name=None):
             "timestamp": r[11]
         })
     return attempts
+
+def resolve_subject(subj):
+    s = str(subj).lower()
+    mapping = {
+        "science": "evs",
+        "maths": "maths",
+        "mathematics": "maths",
+        "math": "maths",
+        "social": "evs",
+        "english": "english",
+        "hindi": "hindi"
+    }
+    return mapping.get(s, s)
+
+def save_textbook(subject, chapter, grade, content):
+    subject = resolve_subject(subject)
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM textbook_cache WHERE subject = ? AND chapter = ? AND grade = ?", (subject, chapter, grade))
+    cursor.execute("""
+        INSERT INTO textbook_cache (subject, chapter, grade, content, timestamp)
+        VALUES (?, ?, ?, ?, ?)
+    """, (subject, chapter, grade, content, datetime.now().isoformat()))
+    conn.commit()
+    conn.close()
+
+def get_textbook_content(subject, chapter, grade):
+    subject = resolve_subject(subject)
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT content FROM textbook_cache WHERE subject = ? AND chapter = ? AND grade = ?", (subject, chapter, grade))
+    row = cursor.fetchone()
+    conn.close()
+    return row[0] if row else None
 
 init_db()

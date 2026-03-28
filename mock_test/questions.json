@@ -1,0 +1,141 @@
+[
+  {
+    "id": 1,
+    "subject": "Science",
+    "chapter": "Plants",
+    "type": "fill_in_blanks",
+    "question": "Plants use _______ to produce food.",
+    "answer": "photosynthesis",
+    "marks": 5,
+    "difficulty": "Easy",
+    "concept": "Biological Processes"
+  },
+  {
+    "id": 2,
+    "subject": "Science",
+    "chapter": "Plants",
+    "type": "match_following",
+    "question": "Match the part with its function:",
+    "options": {
+      "Root": "Absorbs water",
+      "Leaf": "Food factory",
+      "Stem": "Supports plant"
+    },
+    "answer": {
+      "Root": "Absorbs water",
+      "Leaf": "Food factory",
+      "Stem": "Supports plant"
+    },
+    "marks": 10,
+    "difficulty": "Medium",
+    "concept": "Plant Anatomy"
+  },
+  {
+    "id": 3,
+    "subject": "Science",
+    "chapter": "Plants",
+    "type": "descriptive",
+    "question": "Describe why roots are important for a plant.",
+    "keywords": ["water", "absorb", "ground", "support", "nutrients"],
+    "marks": 10,
+    "difficulty": "Medium",
+    "concept": "Functional Science"
+  },
+  {
+    "id": 4,
+    "subject": "Maths",
+    "chapter": "Addition",
+    "type": "fill_in_blanks",
+    "question": "What is 15 + 25?",
+    "answer": "40",
+    "marks": 10,
+    "difficulty": "Easy",
+    "concept": "Arithmetic"
+  },
+  {
+    "id": 5,
+    "subject": "Maths",
+    "chapter": "Multiplication",
+    "type": "fill_in_blanks",
+    "question": "Double of 12 is _______.",
+    "answer": "24",
+    "marks": 15,
+    "difficulty": "Easy",
+    "concept": "Arithmetic"
+  },
+  {
+    "id": 6,
+    "subject": "Maths",
+    "chapter": "Shapes",
+    "type": "match_following",
+    "question": "Match the shape with sides:",
+    "options": {
+      "Triangle": "3 sides",
+      "Square": "4 sides",
+      "Circle": "0 sides"
+    },
+    "answer": {
+      "Triangle": "3 sides",
+      "Square": "4 sides",
+      "Circle": "0 sides"
+    },
+    "marks": 15,
+    "difficulty": "Medium",
+    "concept": "Geometry"
+  },
+  {
+    "id": 7,
+    "subject": "English",
+    "chapter": "Grammar",
+    "type": "fill_in_blanks",
+    "question": "The plural of 'Child' is _______.",
+    "answer": "children",
+    "marks": 10,
+    "difficulty": "Easy",
+    "concept": "Vocabulary"
+  },
+  {
+    "id": 8,
+    "subject": "English",
+    "chapter": "Nouns",
+    "type": "fill_in_blanks",
+    "question": "A _______ is a name of a person, place, or thing.",
+    "answer": "noun",
+    "marks": 15,
+    "difficulty": "Easy",
+    "concept": "Parts of Speech"
+  },
+  {
+    "id": 9,
+    "subject": "English",
+    "chapter": "Writing",
+    "type": "descriptive",
+    "question": "Write a short paragraph about your favorite pet.",
+    "keywords": ["dog", "cat", "love", "play", "friend", "home"],
+    "marks": 25,
+    "difficulty": "Medium",
+    "concept": "Composition"
+  },
+  {
+    "id": 10,
+    "subject": "EVS",
+    "chapter": "Nature",
+    "type": "fill_in_blanks",
+    "question": "The sun rises in the _______.",
+    "answer": "east",
+    "marks": 10,
+    "difficulty": "Easy",
+    "concept": "Nature"
+  },
+  {
+    "id": 11,
+    "subject": "EVS",
+    "chapter": "Animals",
+    "type": "fill_in_blanks",
+    "question": "A group of lions is called a _______.",
+    "answer": "pride",
+    "marks": 15,
+    "difficulty": "Medium",
+    "concept": "Nature"
+  }
+]

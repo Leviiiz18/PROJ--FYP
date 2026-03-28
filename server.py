@@ -31,8 +31,12 @@ from embeddings.embedder import get_embedding_model
 from vector_store.faiss_manager import create_faiss_index
 from retriever.retrieval import get_retriever
 
+# ─── Mock Test Integration ───────────────────────────────────────────────────
+from mock_test.routes import router as exam_router
+
 # ─── App ─────────────────────────────────────────────────────────────────────
 app = FastAPI(title="AI Teacher API")
+app.include_router(exam_router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -55,8 +59,8 @@ def get_embeddings():
 
 
 # ─── Helpers ─────────────────────────────────────────────────────────────────
-
-CHAPTERS_DIR = Path(__file__).parent / "chapters"
+# ─── Config ──────────────────────────────────────────────────────────────────
+CHAPTERS_DIR = Path(__file__).parent / "textbooks"
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 # Free model pool — rotated on rate limit (429) errors
 FREE_MODELS = [
@@ -170,11 +174,16 @@ async def serve_ui():
 
 
 @app.get("/api/chapters")
-async def list_chapters():
-    """Return list of pre-loaded PDF chapter names."""
-    if not CHAPTERS_DIR.exists():
+async def list_chapters(grade: int = 3, subject: str = "Maths"):
+    """Return list of PDF chapter names for specific grade/subject."""
+    # Mapping subjects to folder names if needed
+    sub_map = {"science": "evs", "math": "maths", "english": "english", "hindi": "hindi", "mathematics": "maths"}
+    folder_sub = sub_map.get(subject.lower(), subject.lower())
+    target_dir = CHAPTERS_DIR / f"class {grade} {folder_sub}"
+    
+    if not target_dir.exists():
         return {"chapters": []}
-    files = [f.name for f in CHAPTERS_DIR.glob("*.pdf")]
+    files = [f.name for f in target_dir.glob("*.pdf")]
     return {"chapters": files}
 
 
@@ -260,12 +269,18 @@ async def upload_pdf(file: UploadFile = File(...)):
 
 @app.post("/api/load-chapter")
 async def load_chapter(body: dict):
-    """Load a pre-existing chapter PDF from the chapters/ folder."""
+    """Load a pre-existing chapter PDF from the grade-specific folder."""
     chapter_name = body.get("chapter")
+    grade = body.get("grade", 3)
+    subject = body.get("subject", "Maths")
+    
     if not chapter_name:
         raise HTTPException(status_code=400, detail="chapter name required")
 
-    chapter_path = CHAPTERS_DIR / chapter_name
+    sub_map = {"science": "evs", "math": "maths", "english": "english", "hindi": "hindi", "mathematics": "maths"}
+    folder_sub = sub_map.get(subject.lower(), subject.lower())
+    chapter_path = CHAPTERS_DIR / f"class {grade} {folder_sub}" / chapter_name
+    
     if not chapter_path.exists():
         raise HTTPException(status_code=404, detail=f"Chapter '{chapter_name}' not found.")
 
